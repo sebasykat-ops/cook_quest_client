@@ -66,6 +66,7 @@ class _RecipesPageState extends State<RecipesPage> {
 
               return RecipeTile(
                 recipe: recipe,
+                wasCompletedBefore: recipesController.isRecipeCompleted(recipe.id),
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
@@ -73,6 +74,7 @@ class _RecipesPageState extends State<RecipesPage> {
                         recipeTitle: recipe.title,
                         missionId: 'mission-1',
                         missionController: widget.missionControllerFactory(),
+                        onRecipeCompleted: () => recipesController.markRecipeCompleted(recipe.id),
                       ),
                     ),
                   );

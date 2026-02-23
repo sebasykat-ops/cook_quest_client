@@ -2,6 +2,7 @@ import 'package:cook_quest_client/core/config/app_config.dart';
 import 'package:cook_quest_client/core/network/api_client.dart';
 import 'package:cook_quest_client/features/missions/application/use_cases/advance_mission_step_use_case.dart';
 import 'package:cook_quest_client/features/missions/application/use_cases/get_mission_by_id_use_case.dart';
+import 'package:cook_quest_client/features/missions/application/use_cases/restart_mission_use_case.dart';
 import 'package:cook_quest_client/features/missions/infrastructure/data_sources/http_mission_data_source.dart';
 import 'package:cook_quest_client/features/missions/infrastructure/repositories/http_mission_repository.dart';
 import 'package:cook_quest_client/features/missions/presentation/controllers/mission_controller.dart';
@@ -24,6 +25,7 @@ class AppContainer {
   late final HttpMissionRepository missionRepository;
   late final GetMissionByIdUseCase getMissionByIdUseCase;
   late final AdvanceMissionStepUseCase advanceMissionStepUseCase;
+  late final RestartMissionUseCase restartMissionUseCase;
 
   AppContainer() {
     apiClient = ApiClient(baseUrl: AppConfig.apiBaseUrl);
@@ -38,12 +40,14 @@ class AppContainer {
     missionRepository = HttpMissionRepository(missionDataSource: missionDataSource);
     getMissionByIdUseCase = GetMissionByIdUseCase(missionRepository: missionRepository);
     advanceMissionStepUseCase = AdvanceMissionStepUseCase(missionRepository: missionRepository);
+    restartMissionUseCase = RestartMissionUseCase(missionRepository: missionRepository);
   }
 
   MissionController createMissionController() {
     return MissionController(
       getMissionByIdUseCase: getMissionByIdUseCase,
       advanceMissionStepUseCase: advanceMissionStepUseCase,
+      restartMissionUseCase: restartMissionUseCase,
       getRecipeStepsUseCase: getRecipeStepsUseCase,
     );
   }

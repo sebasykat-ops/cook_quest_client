@@ -5,6 +5,7 @@ class MissionEntity {
     required this.currentStep,
     required this.totalSteps,
     required this.isCompleted,
+    required this.completedTimes,
   });
 
   final String id;
@@ -12,4 +13,5 @@ class MissionEntity {
   final int currentStep;
   final int totalSteps;
   final bool isCompleted;
+  final int completedTimes;
 }

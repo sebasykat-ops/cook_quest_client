@@ -7,6 +7,7 @@ class MissionModel extends MissionEntity {
     required super.currentStep,
     required super.totalSteps,
     required super.isCompleted,
+    required super.completedTimes,
   });
 
   factory MissionModel.fromGetMissionByIdJson(Map<String, dynamic> json) {
@@ -16,6 +17,7 @@ class MissionModel extends MissionEntity {
       currentStep: (json['currentStep'] as num).toInt(),
       totalSteps: (json['totalSteps'] as num?)?.toInt() ?? 0,
       isCompleted: json['isCompleted'] as bool,
+      completedTimes: (json['completedTimes'] as num?)?.toInt() ?? 0,
     );
   }
 
@@ -29,6 +31,7 @@ class MissionModel extends MissionEntity {
       currentStep: (json['currentStep'] as num).toInt(),
       totalSteps: (json['totalSteps'] as num?)?.toInt() ?? 0,
       isCompleted: json['isCompleted'] as bool,
+      completedTimes: (json['completedTimes'] as num?)?.toInt() ?? 0,
     );
   }
 }

@@ -14,4 +14,9 @@ class HttpMissionDataSource {
     final response = await _apiClient.dio.post('/missions/$missionId/complete-step');
     return response.data;
   }
+
+  Future<dynamic> restartMission(String missionId) async {
+    final response = await _apiClient.dio.post('/missions/$missionId/restart');
+    return response.data;
+  }
 }

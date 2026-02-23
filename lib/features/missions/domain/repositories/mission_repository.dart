@@ -3,4 +3,5 @@ import 'package:cook_quest_client/features/missions/domain/entities/mission_enti
 abstract class MissionRepository {
   Future<MissionEntity> getMissionById(String missionId);
   Future<MissionEntity> advanceMissionStep(String missionId);
+  Future<MissionEntity> restartMission(String missionId);
 }

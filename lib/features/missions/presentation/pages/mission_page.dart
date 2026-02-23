@@ -8,11 +8,13 @@ class MissionPage extends StatefulWidget {
     required this.recipeTitle,
     required this.missionId,
     required this.missionController,
+    required this.onRecipeCompleted,
   });
 
   final String recipeTitle;
   final String missionId;
   final MissionController missionController;
+  final Future<void> Function() onRecipeCompleted;
 
   @override
   State<MissionPage> createState() => _MissionPageState();
@@ -35,6 +37,14 @@ class _MissionPageState extends State<MissionPage> {
   void _onStateChanged() {
     if (mounted) {
       setState(() {});
+    }
+  }
+
+  Future<void> _completeStep() async {
+    final becameCompleted = await widget.missionController.advanceStep(widget.missionId);
+
+    if (becameCompleted) {
+      await widget.onRecipeCompleted();
     }
   }
 
@@ -86,10 +96,6 @@ class _MissionPageState extends State<MissionPage> {
                             const SizedBox(height: 8),
                             Text('Tip: ${step.tip!}'),
                           ],
-                          if (step.timerSeconds != null) ...[
-                            const SizedBox(height: 8),
-                            Text('Timer sugerido: ${(step.timerSeconds! / 60).toStringAsFixed(0)} min'),
-                          ],
                           if (step.requiresAdult) ...[
                             const SizedBox(height: 8),
                             const Text('⚠️ Paso con adulto', style: TextStyle(color: Colors.red)),
@@ -100,18 +106,58 @@ class _MissionPageState extends State<MissionPage> {
                   )
                 else
                   const Text('No hay contenido para este paso.'),
+                const SizedBox(height: 12),
+                if (step?.timerSeconds != null && step!.timerSeconds! > 0) ...[
+                  Text('Timer: ${missionController.timerLabel}'),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      FilledButton.tonal(
+                        onPressed: missionController.isTimerRunning
+                            ? missionController.pauseTimer
+                            : missionController.startTimer,
+                        child: Text(missionController.isTimerRunning ? 'Pausar' : 'Iniciar Timer'),
+                      ),
+                      FilledButton.tonal(
+                        onPressed: missionController.addOneMinute,
+                        child: const Text('+1 min'),
+                      ),
+                      FilledButton.tonal(
+                        onPressed: missionController.resetTimerFromStep,
+                        child: const Text('Reiniciar Timer'),
+                      ),
+                    ],
+                  ),
+                ],
                 const SizedBox(height: 16),
                 if (missionController.errorMessage != null)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 8),
                     child: Text('Error: ${missionController.errorMessage}'),
                   ),
-                FilledButton(
-                  onPressed: missionController.isLoading || mission.isCompleted
-                      ? null
-                      : () => missionController.advanceStep(widget.missionId),
-                  child: Text(mission.isCompleted ? 'Misión Completada' : 'Completar Paso'),
+                Wrap(
+                  spacing: 10,
+                  runSpacing: 10,
+                  children: [
+                    FilledButton(
+                      onPressed: missionController.isLoading || mission.isCompleted ? null : _completeStep,
+                      child: Text(mission.isCompleted ? 'Misión Completada' : 'Completar Paso'),
+                    ),
+                    OutlinedButton(
+                      onPressed: missionController.isLoading
+                          ? null
+                          : () => missionController.restartRecipe(widget.missionId),
+                      child: const Text('Volver a hacer receta'),
+                    ),
+                  ],
                 ),
+                if (mission.completedTimes > 0)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 12),
+                    child: Text('🏆 Completada ${mission.completedTimes} vez/veces'),
+                  ),
               ],
             );
           },

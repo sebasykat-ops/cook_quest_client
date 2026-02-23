@@ -30,4 +30,17 @@ class HttpMissionRepository implements MissionRepository {
       fallbackRecipeId: currentMission.recipeId,
     );
   }
+
+  @override
+  Future<MissionEntity> restartMission(String missionId) async {
+    final rawBody = await _missionDataSource.restartMission(missionId);
+    final data = PostAdvanceMissionStepResponseSchema.parse(rawBody);
+
+    final currentMission = await getMissionById(missionId);
+
+    return MissionModel.fromAdvanceMissionStepJson(
+      data,
+      fallbackRecipeId: currentMission.recipeId,
+    );
+  }
 }
