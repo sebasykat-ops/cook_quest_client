@@ -8,6 +8,7 @@ class MissionModel extends MissionEntity {
     required super.totalSteps,
     required super.isCompleted,
     required super.completedTimes,
+    required super.stepCompletions,
     required super.missionCode,
   });
 
@@ -19,6 +20,7 @@ class MissionModel extends MissionEntity {
       totalSteps: (json['totalSteps'] as num?)?.toInt() ?? 0,
       isCompleted: json['isCompleted'] as bool,
       completedTimes: (json['completedTimes'] as num?)?.toInt() ?? 0,
+      stepCompletions: _parseStepCompletions(json['stepCompletions']),
       missionCode: (json['missionCode'] as String?) ?? 'CQ-UNKNOWN',
     );
   }
@@ -34,7 +36,21 @@ class MissionModel extends MissionEntity {
       totalSteps: (json['totalSteps'] as num?)?.toInt() ?? 0,
       isCompleted: json['isCompleted'] as bool,
       completedTimes: (json['completedTimes'] as num?)?.toInt() ?? 0,
+      stepCompletions: _parseStepCompletions(json['stepCompletions']),
       missionCode: (json['missionCode'] as String?) ?? 'CQ-UNKNOWN',
     );
+  }
+
+  static List<MissionStepCompletionEntity> _parseStepCompletions(dynamic rawValue) {
+    if (rawValue is! List) {
+      return [];
+    }
+
+    return rawValue.whereType<Map<String, dynamic>>().map((item) {
+      return MissionStepCompletionEntity(
+        stepOrder: (item['stepOrder'] as num).toInt(),
+        completedAt: item['completedAt'] as String,
+      );
+    }).toList(growable: false);
   }
 }

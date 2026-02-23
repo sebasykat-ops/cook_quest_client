@@ -1,3 +1,10 @@
+class MissionStepCompletionEntity {
+  MissionStepCompletionEntity({required this.stepOrder, required this.completedAt});
+
+  final int stepOrder;
+  final String completedAt;
+}
+
 class MissionEntity {
   MissionEntity({
     required this.id,
@@ -6,6 +13,7 @@ class MissionEntity {
     required this.totalSteps,
     required this.isCompleted,
     required this.completedTimes,
+    required this.stepCompletions,
     required this.missionCode,
   });
 
@@ -15,5 +23,6 @@ class MissionEntity {
   final int totalSteps;
   final bool isCompleted;
   final int completedTimes;
+  final List<MissionStepCompletionEntity> stepCompletions;
   final String missionCode;
 }
