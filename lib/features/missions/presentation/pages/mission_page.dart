@@ -56,111 +56,174 @@ class _MissionPageState extends State<MissionPage> {
 
     return Scaffold(
       appBar: AppBar(title: Text('Misión: ${widget.recipeTitle}')),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Builder(
-          builder: (context) {
-            if (missionController.isLoading && mission == null) {
-              return const Center(child: CircularProgressIndicator());
-            }
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFFF8F5FF), Color(0xFFF3E8FF)],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Builder(
+            builder: (context) {
+              if (missionController.isLoading && mission == null) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-            if (missionController.errorMessage != null && mission == null) {
-              return Center(child: Text('Error: ${missionController.errorMessage}'));
-            }
+              if (missionController.errorMessage != null && mission == null) {
+                return Center(child: Text('Error: ${missionController.errorMessage}'));
+              }
 
-            if (mission == null) {
-              return const Center(child: Text('No mission data'));
-            }
+              if (mission == null) {
+                return const Center(child: Text('No mission data'));
+              }
 
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Código Misión: ${mission.missionCode}'),
-                const SizedBox(height: 6),
-                Text('Paso ${mission.currentStep} de ${mission.totalSteps}'),
-                const SizedBox(height: 12),
-                if (step != null)
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
+              return ListView(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      color: const Color(0xFF4C1D95),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Código Misión: ${mission.missionCode}',
+                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          'Paso ${mission.currentStep} de ${mission.totalSteps}',
+                          style: const TextStyle(color: Color(0xFFE9D5FF)),
+                        ),
+                        const SizedBox(height: 10),
+                        LinearProgressIndicator(
+                          value: mission.totalSteps > 0 ? mission.currentStep / mission.totalSteps : 0,
+                          borderRadius: BorderRadius.circular(99),
+                          backgroundColor: const Color(0xFF6D28D9),
+                          color: const Color(0xFF2DD4BF),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  if (step != null)
+                    Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(18),
+                        color: Colors.white,
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Color(0x15000000),
+                            blurRadius: 12,
+                            offset: Offset(0, 5),
+                          ),
+                        ],
+                      ),
+                      padding: const EdgeInsets.all(14),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Paso ${step.order}',
-                            style: const TextStyle(fontWeight: FontWeight.bold),
+                            '🧩 Paso ${step.order}',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 17,
+                              color: Color(0xFF2E1065),
+                            ),
                           ),
-                          const SizedBox(height: 8),
-                          Text(step.instruction),
+                          const SizedBox(height: 10),
+                          Text(step.instruction, style: const TextStyle(fontSize: 16)),
                           if (step.tip != null && step.tip!.isNotEmpty) ...[
-                            const SizedBox(height: 8),
-                            Text('Tip: ${step.tip!}'),
+                            const SizedBox(height: 10),
+                            Text('💡 Tip: ${step.tip!}'),
                           ],
                           if (step.requiresAdult) ...[
-                            const SizedBox(height: 8),
-                            const Text('⚠️ Paso con adulto', style: TextStyle(color: Colors.red)),
+                            const SizedBox(height: 10),
+                            const Text(
+                              '⚠️ Paso con adulto',
+                              style: TextStyle(color: Color(0xFFDC2626), fontWeight: FontWeight.bold),
+                            ),
                           ],
                         ],
                       ),
+                    )
+                  else
+                    const Text('No hay contenido para este paso.'),
+                  const SizedBox(height: 14),
+                  if (step?.timerSeconds != null && step!.timerSeconds! > 0)
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(14),
+                        color: const Color(0xFFEDE9FE),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '⏱️ Timer: ${missionController.timerLabel}',
+                            style: const TextStyle(fontWeight: FontWeight.w700),
+                          ),
+                          const SizedBox(height: 8),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: [
+                              FilledButton.tonal(
+                                onPressed: missionController.isTimerRunning
+                                    ? missionController.pauseTimer
+                                    : missionController.startTimer,
+                                child: Text(missionController.isTimerRunning ? 'Pausar' : 'Iniciar'),
+                              ),
+                              FilledButton.tonal(
+                                onPressed: missionController.addOneMinute,
+                                child: const Text('+1 min'),
+                              ),
+                              FilledButton.tonal(
+                                onPressed: missionController.resetTimerFromStep,
+                                child: const Text('Reset'),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
-                  )
-                else
-                  const Text('No hay contenido para este paso.'),
-                const SizedBox(height: 12),
-                if (step?.timerSeconds != null && step!.timerSeconds! > 0) ...[
-                  Text('Timer: ${missionController.timerLabel}'),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 14),
+                  if (missionController.errorMessage != null)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Text('Error: ${missionController.errorMessage}'),
+                    ),
                   Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
+                    spacing: 10,
+                    runSpacing: 10,
                     children: [
-                      FilledButton.tonal(
-                        onPressed: missionController.isTimerRunning
-                            ? missionController.pauseTimer
-                            : missionController.startTimer,
-                        child: Text(missionController.isTimerRunning ? 'Pausar' : 'Iniciar Timer'),
+                      FilledButton(
+                        onPressed: missionController.isLoading || mission.isCompleted ? null : _completeStep,
+                        child: Text(mission.isCompleted ? 'Misión Completada 🎉' : 'Completar Paso'),
                       ),
-                      FilledButton.tonal(
-                        onPressed: missionController.addOneMinute,
-                        child: const Text('+1 min'),
-                      ),
-                      FilledButton.tonal(
-                        onPressed: missionController.resetTimerFromStep,
-                        child: const Text('Reiniciar Timer'),
+                      OutlinedButton(
+                        onPressed: missionController.isLoading
+                            ? null
+                            : () => missionController.restartRecipe(widget.missionId),
+                        child: const Text('Volver a hacer receta'),
                       ),
                     ],
                   ),
+                  if (mission.completedTimes > 0)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 12),
+                      child: Text('🏆 Completada ${mission.completedTimes} vez/veces'),
+                    ),
                 ],
-                const SizedBox(height: 16),
-                if (missionController.errorMessage != null)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: Text('Error: ${missionController.errorMessage}'),
-                  ),
-                Wrap(
-                  spacing: 10,
-                  runSpacing: 10,
-                  children: [
-                    FilledButton(
-                      onPressed: missionController.isLoading || mission.isCompleted ? null : _completeStep,
-                      child: Text(mission.isCompleted ? 'Misión Completada' : 'Completar Paso'),
-                    ),
-                    OutlinedButton(
-                      onPressed: missionController.isLoading
-                          ? null
-                          : () => missionController.restartRecipe(widget.missionId),
-                      child: const Text('Volver a hacer receta'),
-                    ),
-                  ],
-                ),
-                if (mission.completedTimes > 0)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 12),
-                    child: Text('🏆 Completada ${mission.completedTimes} vez/veces'),
-                  ),
-              ],
-            );
-          },
+              );
+            },
+          ),
         ),
       ),
     );
