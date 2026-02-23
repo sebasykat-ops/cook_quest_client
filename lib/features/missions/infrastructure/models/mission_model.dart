@@ -9,10 +9,10 @@ class MissionModel extends MissionEntity {
   });
 
   factory MissionModel.fromJson(Map<String, dynamic> json) {
-    final missionId = (json['missionId'] ?? json['id']) as String?;
+    final missionId = json['missionId'] as String?;
 
     if (missionId == null || missionId.isEmpty) {
-      throw const FormatException('Mission id is missing in response payload');
+      throw const FormatException('missionId is missing in response payload');
     }
 
     return MissionModel(
