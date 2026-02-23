@@ -72,7 +72,7 @@ class _RecipesPageState extends State<RecipesPage> {
                     MaterialPageRoute(
                       builder: (_) => MissionPage(
                         recipeTitle: recipe.title,
-                        missionId: 'mission-1',
+                        missionId: 'mission-${recipe.id}',
                         missionController: widget.missionControllerFactory(),
                         onRecipeCompleted: () => recipesController.markRecipeCompleted(recipe.id),
                       ),
