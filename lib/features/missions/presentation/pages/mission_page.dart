@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:cook_quest_client/features/missions/presentation/controllers/mission_controller.dart';
 
@@ -26,12 +27,27 @@ class MissionPage extends StatefulWidget {
 
 class _MissionPageState extends State<MissionPage> {
   bool hasStartedMission = false;
+  late List<bool> ingredientChecks;
+  late List<bool> utensilChecks;
+  bool checklistLoaded = false;
+
+  String get _ingredientPrefsKey => 'checklist.ingredients.${widget.missionId}';
+  String get _utensilPrefsKey => 'checklist.utensils.${widget.missionId}';
+
+  bool get _canStartMission {
+    final allIngredientsChecked = ingredientChecks.isEmpty || ingredientChecks.every((item) => item);
+    final allUtensilsChecked = utensilChecks.isEmpty || utensilChecks.every((item) => item);
+    return allIngredientsChecked && allUtensilsChecked;
+  }
 
   @override
   void initState() {
     super.initState();
+    ingredientChecks = List<bool>.filled(widget.ingredients.length, false);
+    utensilChecks = List<bool>.filled(widget.utensils.length, false);
     widget.missionController.addListener(_onStateChanged);
     widget.missionController.loadMission(widget.missionId);
+    _loadChecklistState();
   }
 
   @override
@@ -44,6 +60,43 @@ class _MissionPageState extends State<MissionPage> {
     if (mounted) {
       setState(() {});
     }
+  }
+
+  Future<void> _loadChecklistState() async {
+    final preferences = await SharedPreferences.getInstance();
+    final ingredientValues = preferences.getStringList(_ingredientPrefsKey);
+    final utensilValues = preferences.getStringList(_utensilPrefsKey);
+
+    if (ingredientValues != null && ingredientValues.length == ingredientChecks.length) {
+      ingredientChecks = ingredientValues.map((item) => item == '1').toList(growable: false);
+    }
+
+    if (utensilValues != null && utensilValues.length == utensilChecks.length) {
+      utensilChecks = utensilValues.map((item) => item == '1').toList(growable: false);
+    }
+
+    checklistLoaded = true;
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  Future<void> _persistChecklistState() async {
+    final preferences = await SharedPreferences.getInstance();
+    await preferences.setStringList(
+      _ingredientPrefsKey,
+      ingredientChecks.map((item) => item ? '1' : '0').toList(growable: false),
+    );
+    await preferences.setStringList(
+      _utensilPrefsKey,
+      utensilChecks.map((item) => item ? '1' : '0').toList(growable: false),
+    );
+  }
+
+  Future<void> _resetChecklistState() async {
+    ingredientChecks = List<bool>.filled(widget.ingredients.length, false);
+    utensilChecks = List<bool>.filled(widget.utensils.length, false);
+    await _persistChecklistState();
   }
 
   Future<void> _completeStep() async {
@@ -87,6 +140,10 @@ class _MissionPageState extends State<MissionPage> {
               }
 
               if (!hasStartedMission) {
+                if (!checklistLoaded) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
                 return ListView(
                   children: [
                     Container(
@@ -101,12 +158,22 @@ class _MissionPageState extends State<MissionPage> {
                       ),
                     ),
                     const SizedBox(height: 14),
-                    _buildChecklistCard('Ingredientes', widget.ingredients, Icons.shopping_basket_rounded),
+                    _buildChecklistCard('Ingredientes', widget.ingredients, ingredientChecks, Icons.shopping_basket_rounded),
                     const SizedBox(height: 12),
-                    _buildChecklistCard('Utensilios', widget.utensils, Icons.kitchen_rounded),
-                    const SizedBox(height: 18),
+                    _buildChecklistCard('Utensilios', widget.utensils, utensilChecks, Icons.kitchen_rounded),
+                    const SizedBox(height: 10),
+                    Text(
+                      _canStartMission
+                          ? '✅ Todo listo, puedes comenzar la misión.'
+                          : 'Marca todos los elementos para empezar.',
+                      style: TextStyle(
+                        color: _canStartMission ? const Color(0xFF047857) : const Color(0xFF7C2D12),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 14),
                     FilledButton(
-                      onPressed: () => setState(() => hasStartedMission = true),
+                      onPressed: _canStartMission ? () => setState(() => hasStartedMission = true) : null,
                       child: const Text('Empezar misión'),
                     ),
                   ],
@@ -149,9 +216,7 @@ class _MissionPageState extends State<MissionPage> {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(18),
                         color: Colors.white,
-                        boxShadow: const [
-                          BoxShadow(color: Color(0x15000000), blurRadius: 12, offset: Offset(0, 5)),
-                        ],
+                        boxShadow: const [BoxShadow(color: Color(0x15000000), blurRadius: 12, offset: Offset(0, 5))],
                       ),
                       padding: const EdgeInsets.all(14),
                       child: Column(
@@ -213,7 +278,17 @@ class _MissionPageState extends State<MissionPage> {
                         child: Text(mission.isCompleted ? 'Misión Completada 🎉' : 'Completar Paso'),
                       ),
                       OutlinedButton(
-                        onPressed: missionController.isLoading ? null : () => missionController.restartRecipe(widget.missionId),
+                        onPressed: missionController.isLoading
+                            ? null
+                            : () async {
+                                await missionController.restartRecipe(widget.missionId);
+                                await _resetChecklistState();
+                                if (mounted) {
+                                  setState(() {
+                                    hasStartedMission = false;
+                                  });
+                                }
+                              },
                         child: const Text('Volver a hacer receta'),
                       ),
                     ],
@@ -232,7 +307,7 @@ class _MissionPageState extends State<MissionPage> {
     );
   }
 
-  Widget _buildChecklistCard(String title, List<String> items, IconData icon) {
+  Widget _buildChecklistCard(String title, List<String> items, List<bool> checks, IconData icon) {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -251,16 +326,25 @@ class _MissionPageState extends State<MissionPage> {
             ],
           ),
           const SizedBox(height: 10),
-          ...items.map((item) => Padding(
-                padding: const EdgeInsets.only(bottom: 6),
-                child: Row(
-                  children: [
-                    const Icon(Icons.check_circle_outline, size: 18, color: Color(0xFF10B981)),
-                    const SizedBox(width: 8),
-                    Expanded(child: Text(item)),
-                  ],
-                ),
-              )),
+          ...items.asMap().entries.map((entry) {
+            final index = entry.key;
+            final item = entry.value;
+
+            return CheckboxListTile(
+              value: checks[index],
+              dense: true,
+              contentPadding: EdgeInsets.zero,
+              controlAffinity: ListTileControlAffinity.leading,
+              activeColor: const Color(0xFF7C3AED),
+              onChanged: (value) async {
+                setState(() {
+                  checks[index] = value ?? false;
+                });
+                await _persistChecklistState();
+              },
+              title: Text(item),
+            );
+          }),
         ],
       ),
     );
