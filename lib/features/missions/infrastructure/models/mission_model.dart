@@ -8,16 +8,22 @@ class MissionModel extends MissionEntity {
     required super.isCompleted,
   });
 
-  factory MissionModel.fromJson(Map<String, dynamic> json) {
-    final missionId = json['id'] as String?;
-
-    if (missionId == null || missionId.isEmpty) {
-      throw const FormatException('id is missing in response payload');
-    }
-
+  factory MissionModel.fromGetMissionByIdJson(Map<String, dynamic> json) {
     return MissionModel(
-      id: missionId,
+      id: json['id'] as String,
       recipeId: (json['recipeId'] as String?) ?? 'unknown-recipe',
+      currentStep: (json['currentStep'] as num).toInt(),
+      isCompleted: json['isCompleted'] as bool,
+    );
+  }
+
+  factory MissionModel.fromAdvanceMissionStepJson(
+    Map<String, dynamic> json, {
+    required String fallbackRecipeId,
+  }) {
+    return MissionModel(
+      id: json['missionId'] as String,
+      recipeId: fallbackRecipeId,
       currentStep: (json['currentStep'] as num).toInt(),
       isCompleted: json['isCompleted'] as bool,
     );

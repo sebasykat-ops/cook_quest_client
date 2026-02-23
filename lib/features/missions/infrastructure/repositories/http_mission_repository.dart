@@ -2,7 +2,8 @@ import 'package:cook_quest_client/features/missions/domain/entities/mission_enti
 import 'package:cook_quest_client/features/missions/domain/repositories/mission_repository.dart';
 import 'package:cook_quest_client/features/missions/infrastructure/data_sources/http_mission_data_source.dart';
 import 'package:cook_quest_client/features/missions/infrastructure/models/mission_model.dart';
-import 'package:cook_quest_client/features/missions/infrastructure/schema/get_mission_response_schema.dart';
+import 'package:cook_quest_client/features/missions/infrastructure/schema/get_mission_by_id_response_schema.dart';
+import 'package:cook_quest_client/features/missions/infrastructure/schema/post_advance_mission_step_response_schema.dart';
 
 class HttpMissionRepository implements MissionRepository {
   HttpMissionRepository({required HttpMissionDataSource missionDataSource})
@@ -13,23 +14,20 @@ class HttpMissionRepository implements MissionRepository {
   @override
   Future<MissionEntity> getMissionById(String missionId) async {
     final rawBody = await _missionDataSource.getMissionById(missionId);
-    final data = GetMissionResponseSchema.parse(rawBody);
-    return MissionModel.fromJson(data);
+    final data = GetMissionByIdResponseSchema.parse(rawBody);
+    return MissionModel.fromGetMissionByIdJson(data);
   }
 
   @override
   Future<MissionEntity> advanceMissionStep(String missionId) async {
     final rawBody = await _missionDataSource.advanceMissionStep(missionId);
-    final data = GetMissionResponseSchema.parse(rawBody);
+    final data = PostAdvanceMissionStepResponseSchema.parse(rawBody);
 
-    // advance-step endpoint returns reduced payload; normalize for model parsing
-    final normalizedData = <String, dynamic>{
-      'missionId': data['missionId'],
-      'recipeId': data['recipeId'] ?? 'unknown-recipe',
-      'currentStep': data['currentStep'],
-      'isCompleted': data['isCompleted'],
-    };
+    final currentMission = await getMissionById(missionId);
 
-    return MissionModel.fromJson(normalizedData);
+    return MissionModel.fromAdvanceMissionStepJson(
+      data,
+      fallbackRecipeId: currentMission.recipeId,
+    );
   }
 }
