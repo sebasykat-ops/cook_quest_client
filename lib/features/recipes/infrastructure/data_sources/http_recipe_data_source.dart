@@ -9,4 +9,9 @@ class HttpRecipeDataSource {
     final response = await _apiClient.dio.get('/recipes');
     return response.data;
   }
+
+  Future<dynamic> getRecipeSteps(String recipeId) async {
+    final response = await _apiClient.dio.get('/recipes/$recipeId/steps');
+    return response.data;
+  }
 }

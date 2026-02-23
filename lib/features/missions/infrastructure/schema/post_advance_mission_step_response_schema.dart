@@ -19,8 +19,8 @@ class PostAdvanceMissionStepResponseSchema {
       throw AppException('Invalid advance mission payload: missionId is required');
     }
 
-    if (data['currentStep'] is! num || data['isCompleted'] is! bool) {
-      throw AppException('Invalid advance mission payload: currentStep/isCompleted are required');
+    if (data['currentStep'] is! num || data['totalSteps'] is! num || data['isCompleted'] is! bool) {
+      throw AppException('Invalid advance mission payload: currentStep/totalSteps/isCompleted are required');
     }
 
     return data;

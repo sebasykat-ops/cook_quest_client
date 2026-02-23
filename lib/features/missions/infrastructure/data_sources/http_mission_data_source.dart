@@ -11,7 +11,7 @@ class HttpMissionDataSource {
   }
 
   Future<dynamic> advanceMissionStep(String missionId) async {
-    final response = await _apiClient.dio.post('/missions/$missionId/advance-step');
+    final response = await _apiClient.dio.post('/missions/$missionId/complete-step');
     return response.data;
   }
 }

@@ -5,6 +5,7 @@ import 'package:cook_quest_client/features/missions/application/use_cases/get_mi
 import 'package:cook_quest_client/features/missions/infrastructure/data_sources/http_mission_data_source.dart';
 import 'package:cook_quest_client/features/missions/infrastructure/repositories/http_mission_repository.dart';
 import 'package:cook_quest_client/features/missions/presentation/controllers/mission_controller.dart';
+import 'package:cook_quest_client/features/recipes/application/use_cases/get_recipe_steps_use_case.dart';
 import 'package:cook_quest_client/features/recipes/application/use_cases/get_recipes_use_case.dart';
 import 'package:cook_quest_client/features/recipes/infrastructure/data_sources/http_recipe_data_source.dart';
 import 'package:cook_quest_client/features/recipes/infrastructure/repositories/http_recipe_repository.dart';
@@ -16,6 +17,7 @@ class AppContainer {
   late final HttpRecipeDataSource recipeDataSource;
   late final HttpRecipeRepository recipeRepository;
   late final GetRecipesUseCase getRecipesUseCase;
+  late final GetRecipeStepsUseCase getRecipeStepsUseCase;
   late final RecipesController recipesController;
 
   late final HttpMissionDataSource missionDataSource;
@@ -29,6 +31,7 @@ class AppContainer {
     recipeDataSource = HttpRecipeDataSource(apiClient: apiClient);
     recipeRepository = HttpRecipeRepository(recipeDataSource: recipeDataSource);
     getRecipesUseCase = GetRecipesUseCase(recipeRepository: recipeRepository);
+    getRecipeStepsUseCase = GetRecipeStepsUseCase(recipeRepository: recipeRepository);
     recipesController = RecipesController(getRecipesUseCase: getRecipesUseCase);
 
     missionDataSource = HttpMissionDataSource(apiClient: apiClient);
@@ -41,6 +44,7 @@ class AppContainer {
     return MissionController(
       getMissionByIdUseCase: getMissionByIdUseCase,
       advanceMissionStepUseCase: advanceMissionStepUseCase,
+      getRecipeStepsUseCase: getRecipeStepsUseCase,
     );
   }
 }

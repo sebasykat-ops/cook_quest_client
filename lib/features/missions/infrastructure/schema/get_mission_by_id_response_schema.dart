@@ -19,8 +19,8 @@ class GetMissionByIdResponseSchema {
       throw AppException('Invalid get mission payload: id is required');
     }
 
-    if (data['currentStep'] is! num || data['isCompleted'] is! bool) {
-      throw AppException('Invalid get mission payload: currentStep/isCompleted are required');
+    if (data['currentStep'] is! num || data['totalSteps'] is! num || data['isCompleted'] is! bool) {
+      throw AppException('Invalid get mission payload: currentStep/totalSteps/isCompleted are required');
     }
 
     return data;
