@@ -14,7 +14,10 @@ Flutter client refactored with clean boundaries inspired by backend DDD rules.
   - `infrastructure` (data sources, repositories, schema, container)
   - `presentation` (controllers, pages, widgets)
 - `features/missions`
-  - `presentation`
+  - `domain` (entities, repositories)
+  - `application` (use cases)
+  - `infrastructure` (data sources, repositories, schema)
+  - `presentation` (controllers, pages)
 
 ## Rules applied
 - Presentation only calls controllers/use cases.

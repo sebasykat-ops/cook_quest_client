@@ -13,7 +13,10 @@ class App extends StatelessWidget {
     return MaterialApp(
       title: 'CookQuest',
       theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: Colors.orange), useMaterial3: true),
-      home: RecipesPage(recipesController: appContainer.recipesController),
+      home: RecipesPage(
+        recipesController: appContainer.recipesController,
+        missionControllerFactory: appContainer.createMissionController,
+      ),
     );
   }
 }

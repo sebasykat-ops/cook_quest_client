@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
 
+import 'package:cook_quest_client/features/missions/presentation/controllers/mission_controller.dart';
 import 'package:cook_quest_client/features/missions/presentation/pages/mission_page.dart';
 import 'package:cook_quest_client/features/recipes/presentation/controllers/recipes_controller.dart';
 import 'package:cook_quest_client/features/recipes/presentation/widgets/recipe_tile.dart';
 
 class RecipesPage extends StatefulWidget {
-  const RecipesPage({super.key, required this.recipesController});
+  const RecipesPage({
+    super.key,
+    required this.recipesController,
+    required this.missionControllerFactory,
+  });
 
   final RecipesController recipesController;
+  final MissionController Function() missionControllerFactory;
 
   @override
   State<RecipesPage> createState() => _RecipesPageState();
@@ -62,7 +68,13 @@ class _RecipesPageState extends State<RecipesPage> {
                 recipe: recipe,
                 onTap: () {
                   Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => MissionPage(recipeTitle: recipe.title)),
+                    MaterialPageRoute(
+                      builder: (_) => MissionPage(
+                        recipeTitle: recipe.title,
+                        missionId: 'mission-1',
+                        missionController: widget.missionControllerFactory(),
+                      ),
+                    ),
                   );
                 },
               );
