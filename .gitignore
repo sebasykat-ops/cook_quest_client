@@ -1,6 +1,42 @@
+# Dart / Flutter
 .dart_tool/
 .packages
+.pub/
 build/
+
+# Generated plugin registrants
+**/generated_plugin_registrant.dart
+
+# Flutter/Dart export files
+*.log
+*.tmp
+*.swp
+*.DS_Store
+
+# IDE
 .idea/
 .vscode/
 *.iml
+
+# Android
+**/android/.gradle/
+**/android/local.properties
+**/android/**/key.properties
+**/android/**/keystore.properties
+*.jks
+*.keystore
+
+# iOS / macOS
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Flutter.podspec
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/ephemeral/
+**/ios/Pods/
+**/ios/.symlinks/
+**/macos/Flutter/ephemeral/
+**/macos/Pods/
+**/macos/.symlinks/
+
+# Windows / Linux build artifacts
+**/windows/flutter/ephemeral/
+**/linux/flutter/ephemeral/
