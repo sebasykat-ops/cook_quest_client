@@ -75,7 +75,7 @@ class _MissionPageState extends State<MissionPage> {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Mission ID: ${mission.id}'),
+                Text('Código Misión: ${mission.missionCode}'),
                 const SizedBox(height: 6),
                 Text('Paso ${mission.currentStep} de ${mission.totalSteps}'),
                 const SizedBox(height: 12),

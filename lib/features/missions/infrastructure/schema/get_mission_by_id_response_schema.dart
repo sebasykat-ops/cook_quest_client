@@ -23,10 +23,11 @@ class GetMissionByIdResponseSchema {
       data['currentStep'] is! num ||
       data['totalSteps'] is! num ||
       data['isCompleted'] is! bool ||
-      data['completedTimes'] is! num
+      data['completedTimes'] is! num ||
+      data['missionCode'] is! String
     ) {
       throw AppException(
-        'Invalid get mission payload: currentStep/totalSteps/isCompleted/completedTimes are required',
+        'Invalid get mission payload: currentStep/totalSteps/isCompleted/completedTimes/missionCode are required',
       );
     }
 
