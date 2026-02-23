@@ -1,27 +1,47 @@
 # CookQuest Client (Flutter)
 
-Flutter client scaffold aligned with DDD/clean boundaries.
+Flutter client refactored with clean boundaries inspired by backend DDD rules.
 
 ## Architecture
-- `core` for cross-cutting infra
+- `core`
+  - `config`
+  - `di`
+  - `error`
+  - `network`
 - `features/recipes`
-  - domain
-  - data
-  - presentation
+  - `domain` (entities, repositories)
+  - `application` (use cases)
+  - `infrastructure` (data sources, repositories, schema, container)
+  - `presentation` (controllers, pages, widgets)
 - `features/missions`
-  - presentation (initial)
+  - `presentation`
+
+## Rules applied
+- Presentation only calls controllers/use cases.
+- Controllers do not call HTTP/Dio directly.
+- Repository access is encapsulated in use cases.
+- Input/response parsing isolated in schema classes.
+- Dependency wiring centralized in `AppContainer`.
+- Imports use package paths (`package:cook_quest_client/...`) for readability.
 
 ## Run
 ```bash
 flutter pub get
-flutter run
+flutter run --dart-define=API_BASE_URL=http://localhost:3000
 ```
 
-## Backend URL
-Current base URL in `recipes_page.dart`:
-- `http://localhost:3000`
+### Platform base URL notes
+- Android emulator:
+```bash
+flutter run --dart-define=API_BASE_URL=http://10.0.2.2:3000
+```
 
-If running on Android emulator, change to:
-- `http://10.0.2.2:3000`
+- iOS simulator:
+```bash
+flutter run --dart-define=API_BASE_URL=http://localhost:3000
+```
 
-If running on physical device, use your machine LAN IP.
+- Physical device (replace IP):
+```bash
+flutter run --dart-define=API_BASE_URL=http://192.168.1.50:3000
+```

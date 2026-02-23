@@ -1,64 +1,68 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/network/api_client.dart';
-import '../../data/repositories/http_recipe_repository.dart';
-import '../../domain/entities/recipe_entity.dart';
-import '../../../missions/presentation/pages/mission_page.dart';
-import '../widgets/recipe_tile.dart';
+import 'package:cook_quest_client/features/missions/presentation/pages/mission_page.dart';
+import 'package:cook_quest_client/features/recipes/presentation/controllers/recipes_controller.dart';
+import 'package:cook_quest_client/features/recipes/presentation/widgets/recipe_tile.dart';
 
 class RecipesPage extends StatefulWidget {
-  const RecipesPage({super.key});
+  const RecipesPage({super.key, required this.recipesController});
+
+  final RecipesController recipesController;
 
   @override
   State<RecipesPage> createState() => _RecipesPageState();
 }
 
 class _RecipesPageState extends State<RecipesPage> {
-  late final HttpRecipeRepository _recipeRepository;
-  late Future<List<RecipeEntity>> _recipesFuture;
-
   @override
   void initState() {
     super.initState();
-    final apiClient = ApiClient(baseUrl: 'http://localhost:3000');
-    _recipeRepository = HttpRecipeRepository(apiClient: apiClient);
-    _recipesFuture = _recipeRepository.getRecipes();
+    widget.recipesController.addListener(_onStateChanged);
+    widget.recipesController.loadRecipes();
+  }
+
+  @override
+  void dispose() {
+    widget.recipesController.removeListener(_onStateChanged);
+    super.dispose();
+  }
+
+  void _onStateChanged() {
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final recipesController = widget.recipesController;
+
     return Scaffold(
       appBar: AppBar(title: const Text('CookQuest Recipes')),
-      body: FutureBuilder<List<RecipeEntity>>(
-        future: _recipesFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
+      body: Builder(
+        builder: (context) {
+          if (recipesController.isLoading) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (snapshot.hasError) {
-            return Center(
-              child: Text('Error loading recipes: ${snapshot.error}'),
-            );
+          if (recipesController.errorMessage != null) {
+            return Center(child: Text('Error loading recipes: ${recipesController.errorMessage}'));
           }
 
-          final recipes = snapshot.data ?? [];
-
-          if (recipes.isEmpty) {
+          if (recipesController.recipes.isEmpty) {
             return const Center(child: Text('No recipes available'));
           }
 
           return ListView.builder(
-            itemCount: recipes.length,
+            itemCount: recipesController.recipes.length,
             itemBuilder: (context, index) {
-              final recipe = recipes[index];
+              final recipe = recipesController.recipes[index];
+
               return RecipeTile(
                 recipe: recipe,
                 onTap: () {
                   Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => MissionPage(recipeTitle: recipe.title),
-                    ),
+                    MaterialPageRoute(builder: (_) => MissionPage(recipeTitle: recipe.title)),
                   );
                 },
               );

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../domain/entities/recipe_entity.dart';
+import 'package:cook_quest_client/features/recipes/domain/entities/recipe_entity.dart';
 
 class RecipeTile extends StatelessWidget {
   const RecipeTile({super.key, required this.recipe, required this.onTap});

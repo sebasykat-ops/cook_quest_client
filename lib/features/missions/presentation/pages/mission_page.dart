@@ -9,9 +9,7 @@ class MissionPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Misión: $recipeTitle')),
-      body: const Center(
-        child: Text('Pantalla inicial de misión (próximo sprint).'),
-      ),
+      body: const Center(child: Text('Pantalla inicial de misión (próximo sprint).')),
     );
   }
 }

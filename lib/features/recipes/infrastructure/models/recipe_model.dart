@@ -1,4 +1,4 @@
-import '../../domain/entities/recipe_entity.dart';
+import 'package:cook_quest_client/features/recipes/domain/entities/recipe_entity.dart';
 
 class RecipeModel extends RecipeEntity {
   RecipeModel({
