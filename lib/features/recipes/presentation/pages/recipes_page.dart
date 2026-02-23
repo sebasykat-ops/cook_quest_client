@@ -104,6 +104,8 @@ class _RecipesPageState extends State<RecipesPage> {
                             missionId: 'mission-${recipe.id}',
                             missionController: widget.missionControllerFactory(),
                             onRecipeCompleted: () => recipesController.markRecipeCompleted(recipe.id),
+                            ingredients: recipe.ingredients,
+                            utensils: recipe.utensils,
                           ),
                         ),
                       );
